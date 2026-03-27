@@ -1,5 +1,12 @@
+type KeyEvent = {
+  key: string;
+  shiftKey?: boolean;
+  ctrlKey?: boolean;
+  altKey?: boolean;
+  metaKey?: boolean;
+};
 
-const isMac = (navigator.userAgent.toLowerCase().indexOf("mac") !== -1);
+const isMac = (globalThis.navigator?.userAgent.toLowerCase().indexOf("mac") !== -1);
 
 export function bindingSymbols(key?: string): string[] {
   if (!key) return [];
@@ -14,9 +21,11 @@ export function bindingSymbols(key?: string): string[] {
     "arrowleft": "←",
     "arrowright": "→",
     "enter": "⏎"
-  };
+  } as const;
   const keys = key.toLowerCase().split("+");
-  return keys.map(filterKeyForNonMacMeta).map(k => (Object.keys(symbols).includes(k)) ? symbols[k] : k);
+  return keys
+    .map(filterKeyForNonMacMeta)
+    .map(k => (k in symbols) ? symbols[k as keyof typeof symbols] : k);
 }
 
 // if key is meta and not on a mac, change it to ctrl,
@@ -52,7 +61,7 @@ export class KeyBindings {
     return null;
   }
 
-  evaluateEvent(event: KeyboardEvent): Binding|null {
+  evaluateEvent(event: KeyEvent): Binding|null {
     bindings: for (const b of this.bindings) {
       let modifiers = b.key.toLowerCase().split("+");
       let key = modifiers.pop();
@@ -67,8 +76,7 @@ export class KeyBindings {
             hasMod = modifiers.includes("meta") || modifiers.includes("ctrl");
           }
         }
-        // @ts-ignore
-        const modState = event[`${filterKeyForNonMacMeta(checkMod)}Key`];
+        const modState = Boolean((event as Record<string, boolean | string>)[`${filterKeyForNonMacMeta(checkMod)}Key`]);
         if (!modState && hasMod) {
           continue bindings;
         }

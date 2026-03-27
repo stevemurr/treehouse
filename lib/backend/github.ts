@@ -72,7 +72,7 @@ export class GitHubBackend {
         
         localStorage.setItem("treehouse:gh-token", result.token);
   
-      } catch (e: Error) {
+      } catch (e) {
         this.reset();
         console.error(e);
         return;
@@ -88,7 +88,7 @@ export class GitHubBackend {
         history.pushState({}, "", `${location.pathname}${querystring}`);
         
         localStorage.setItem("treehouse:gh-token", token);
-      } catch (e: Error) {
+      } catch (e) {
         this.reset();
         console.error(e);
         return;
@@ -100,7 +100,7 @@ export class GitHubBackend {
       if (!this.user) {
         throw "authentication failed";
       }
-    } catch (e: Error) {
+    } catch (e) {
       console.error(e);
       if (this.opts.authFallbackURL) {
         location.href = this.opts.authFallbackURL;
@@ -120,7 +120,7 @@ export class GitHubBackend {
         owner: this.user.userID(), 
         repo: this.repoName
       });
-    } catch (e: Error) {
+    } catch (e: any) {
       if (e.message !== "Not Found") {
         throw e;
       }
@@ -140,7 +140,7 @@ export class GitHubBackend {
         repo: this.repoName,
         path: "workspace.json"
       });
-    } catch (e: Error) {
+    } catch (e: any) {
       if (e.name !== "HttpError") {
         throw e;
       }
@@ -221,7 +221,7 @@ export class GitHubBackend {
         }
       }
       
-    } catch (e: Error) {}
+    } catch (e) {}
     
   }
   
@@ -272,7 +272,7 @@ export class GitHubBackend {
       });
       this.shas[path] = resp.data.sha;
       return decode(resp.data.content);
-    } catch (e: Error) {
+    } catch (e: any) {
       if (e.name !== "HttpError") {
         console.error(e);
       }
